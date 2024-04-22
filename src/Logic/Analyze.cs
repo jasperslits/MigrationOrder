@@ -32,10 +32,15 @@ public class Analyze
             ct = group.Key,
             Count = group.Count()
         });
+        int lower = 8;
+        int upper = 58;
+        int total = 0;
+        double Pct;
+
         foreach (var j in x)
         {
-
-            if (j.Count < 8 || j.Count > 50)
+            Pct = 100 * (double)(j.Count / (double)de.Count);
+            if (j.Count < lower || j.Count > upper)
             {
                 Console.WriteLine($"Inbalance found for type {j.ct} with count {j.Count}");
             }
@@ -132,7 +137,7 @@ public class Analyze
         Score sc = new();
         foreach (var gcc in Drl)
         {
-            sc = new() { Gcc = gcc.Gcc };
+            sc = new() { Gcc = gcc.Gcc, GccName = gcc.GccName };
             Scores.Add(sc);
         }
     }

@@ -4,10 +4,13 @@ public class DataDump {
     [Index(0)]
     public string Gcc {get;set;}
     [Index(1)]
-    public int Documents {get;set;}
+    public string GccName {get;set;}
+
     [Index(2)]
-    public int BODs {get;set;}
+    public int Documents {get;set;}
     [Index(3)]
+    public int BODs {get;set;}
+    [Index(4)]
     public int Users {get;set;}
 
      public int LCCs { get; set; }
@@ -18,6 +21,5 @@ public class DataDump {
 
     public Dictionary<String,int> Features {get;set;}
 
-    public string GccName {get;set;}
 
 }

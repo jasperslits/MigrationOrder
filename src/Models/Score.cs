@@ -19,6 +19,8 @@ public class Score {
     
     public string Gcc {get;set;}
 
+    public string GccName {get;set;}
+
     public ComplexityType Headcount {get; set;} = ComplexityType.Undefined;
 
     public ComplexityType Countrycount {get; set;} = ComplexityType.Undefined;

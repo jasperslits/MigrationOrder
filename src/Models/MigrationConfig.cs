@@ -17,12 +17,14 @@ public class MigrationConfig
     public readonly static string datadumpfile = "full_gcc.csv";
     public readonly static string paygroupfile = "full_pg.csv";
 
-    public readonly static string OnlyGcc = "RKT";
+    public readonly static string OnlyGcc = "";
 
     public static Dictionary<string,int> Predefined() {
-        Dictionary<string,int> keyValuePairs = new();
-        keyValuePairs.Add("ING",2);
-        keyValuePairs.Add("RAB",5);
+        Dictionary<string,int> keyValuePairs = new()
+        {
+            { "ING", 2 },
+            { "RAB", 5 }
+        };
         return keyValuePairs;
 
     }

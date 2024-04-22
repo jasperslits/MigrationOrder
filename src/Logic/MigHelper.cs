@@ -105,9 +105,9 @@ public class MigHelper
             ls2["EventCount"][0] += result.Value.Where(x => x.Eventcount == ComplexityType.Low).Count();
             ls2["EventCount"][1] += result.Value.Where(x => x.Eventcount == ComplexityType.Medium).Count(); 
             ls2["EventCount"][2] += result.Value.Where(x => x.Eventcount == ComplexityType.High).Count();
-            ls2["EmployeeCount"][0] += result.Value.Where(x => x.Eventcount == ComplexityType.Low).Count();
-            ls2["EmployeeCount"][1] += result.Value.Where(x => x.Eventcount == ComplexityType.Medium).Count(); 
-            ls2["EmployeeCount"][2] += result.Value.Where(x => x.Eventcount == ComplexityType.High).Count();
+            ls2["EmployeeCount"][0] += result.Value.Where(x => x.Headcount == ComplexityType.Low).Count();
+            ls2["EmployeeCount"][1] += result.Value.Where(x => x.Headcount == ComplexityType.Medium).Count(); 
+            ls2["EmployeeCount"][2] += result.Value.Where(x => x.Headcount == ComplexityType.High).Count();
         
         }
         
@@ -145,7 +145,7 @@ public class MigHelper
                     Console.WriteLine($"No PG data found for {obj.Gcc}");
                     continue;
                 }
-                E.Init(obj.Gcc, ppglist[0].Dayone.Month);
+                E.Init(obj.Gcc, obj.GccName, ppglist[0].Dayone.Month);
 
                 if (ppglist.Count == 1)
                 {

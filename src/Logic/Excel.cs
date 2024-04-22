@@ -8,6 +8,8 @@ using OfficeOpenXml;
 public class Excel
 {
     private string Gcc;
+
+    private string GccName;
     public List<Coordinates> c { get; set; }
     private ExcelWorksheet Ws { get; set; }
     private ExcelPackage Package { get; set; }
@@ -67,6 +69,8 @@ public class Excel
         Ws.Cells[1, 1].Style.Font.Size = 16;
         Ws.Cells["A3:I3"].Style.Font.Bold = true;
         string[] monthNames = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.MonthNames; 
+
+   
         
         int col = 1;
         string[] fields = { "Month","GCC","GCC Name","Total score","Headcount","Docs","LCC","Pay group count","Country","Events"};
@@ -81,7 +85,7 @@ public class Excel
             foreach(Score s in d.Value) {
                 Ws.Cells[row,1].Value = monthNames[monthOffset + d.Key -1];
                 Ws.Cells[row,2].Value = s.Gcc;
-                Ws.Cells[row,3].Value = s.Gcc;
+                Ws.Cells[row,3].Value = s.GccName;
                 Ws.Cells[row,4].Value = s.Total;
                 Ws.Cells[row,5].Value = s.Headcount;
                 Ws.Cells[row,6].Value = s.DocCount;
@@ -94,13 +98,15 @@ public class Excel
             
             
         }
+
+         Ws.Cells["A1:J3"].EntireColumn.Width = 18;
+         Ws.Cells["C1:C1"].EntireColumn.Width = 30; 
     }
 
-    public void Init(string gcc, int calendarMonth) {
+    public void Init(string gcc, string gccName, int calendarMonth) {
          Gcc = gcc;
-         if (Gcc == "RKT") {
-            Console.WriteLine($"RKT = {calendarMonth}");
-         }
+         GccName = gccName;
+       
          CreateCalendar(calendarMonth);
     }
 
@@ -156,7 +162,7 @@ public class Excel
         w.Style.Font.Bold = true;
         var monthname = dt.ToString("MMMM", new System.Globalization.CultureInfo("en-GB"));
         
-        Ws.Cells[1, 1].Value = $"Calendar for {monthname} for {Gcc}";
+        Ws.Cells[1, 1].Value = $"Calendar for {monthname} for {Gcc} ({GccName})";
         Ws.Cells[1, 1].Style.Font.Size = 16;
         Ws.Cells["A2:G2"].Style.Font.Size = 16;
 
