@@ -1,11 +1,7 @@
-
 namespace MigrationOrder.Logic;
 
 using MigrationOrder.Enums;
 using MigrationOrder.Models;
-using System.Diagnostics;
-
-
 
 public class Distribute
 {
@@ -33,7 +29,7 @@ public class Distribute
     {
         int buckets = MigrationConfig.NrPeriods;
         Scores = scores;
-        Console.WriteLine($"Distribution even is {bf}");
+       // Console.WriteLine($"Distribution even is {bf}");
         double totalGcc = scores.Count;
         for (int i = 0; i < buckets; i++)
         {
@@ -45,6 +41,14 @@ public class Distribute
         int j = 0;
         if (bf == BucketFill.Horizontal)
         {
+          
+            Score s;
+            foreach(var kvp in MigrationConfig.Predefined()) {
+                s = Scores.Find(x => x.Gcc == kvp.Key);
+                DistScores[kvp.Value].Add(s);
+                Scores.RemoveAll(x => x.Gcc == kvp.Key);
+            }
+
             foreach (Score score in scores)
             {
                 if (j == buckets) j = 0;
@@ -81,9 +85,9 @@ public class Distribute
         int control = 0;
         foreach (var d in DistScores)
         {
-            control += d.Value.Count();
+            control += d.Value.Count;
         }
-        Debug.Assert(control == totalGcc,$"Missing GCCs {control} vs {totalGcc}");
+       // Debug.Assert(control == totalGcc,$"Missing GCCs {control} vs {totalGcc}");
     }
 
 

@@ -39,12 +39,12 @@ public class ComplexitySplitterAbs {
 
     public static readonly Bucket LccCount = new() { Low = 10, Medium = 20, High = 30 };  
     public static readonly Bucket HeadCount = new() { Low = 600, Medium = 5000, High = 10000 }; 
-    public static readonly Bucket EventCount = new() { Low = 900, Medium = 3600, High = 100000 }; 
+    public static readonly Bucket EventCount = new() { Low = 100000, Medium = 800000, High = 5000000 }; 
     
     public static readonly Bucket CountryCount = new() { Low = 2,Medium = 10, High = 30}; 
     public static readonly Bucket PaygroupCount = new() { Low = 2,Medium = 20, High = 30}; 
 
-    public static readonly Bucket DocCount = new() { Low = 900, Medium = 3600, High = 100000 }; 
+    public static readonly Bucket DocCount = new() { Low = 200000, Medium = 800000, High = 5000000 }; 
 
 } 
 

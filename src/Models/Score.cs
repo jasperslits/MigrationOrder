@@ -40,6 +40,7 @@ public class Score {
         (double)Countrycount * ScoreWeights.CountryWeight + 
         (double)Eventcount * ScoreWeights.EventWeight + 
         (double)LccCount * ScoreWeights.LccWeight + 
+        (double)DocCount * ScoreWeights.DocWeight + 
         (double)PayPeriodCount * ScoreWeights.PayPeriodWeight;
     }
 

@@ -53,7 +53,7 @@ public class MigHelper
         List<DataDump> dd = Mr.ReadDataDump();
         Console.WriteLine($"Rows = {dd.Count}");
         Analyze a = new(dd);
-        a.EventCount(Enums.Operation.Even);
+        a.EventCount();
         a.HeadCount();
         a.LccCount();
         a.CountryCount();
@@ -61,7 +61,7 @@ public class MigHelper
         a.PayGroupCount();
 
         var scores = a.GetScores();
-        Distribute d = new(scores, BucketFill.Vertical);
+        Distribute d = new(scores, MigrationConfig.DistributionOrder);
         DistResults = d.GetDistScores();
     }
 
