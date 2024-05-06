@@ -4,15 +4,20 @@ using System.Diagnostics;
 using System.Reflection.Metadata.Ecma335;
 using MigrationOrder.Models;
 using OfficeOpenXml;
+using OfficeOpenXml.Style.XmlAccess;
 
 public class Excel
 {
     private string Gcc;
 
     private string GccName;
-    public List<Coordinates> c { get; set; }
+    public List<Coordinates> C { get; set; }
     private ExcelWorksheet Ws { get; set; }
     private ExcelPackage Package { get; set; }
+
+    private ExcelNamedStyleXml FormattedStyle {get;set;}
+
+    private int CalRowCount { get; set; }
 
     public Excel()
     {
@@ -21,11 +26,11 @@ public class Excel
 
     }
 
-    public void Init(string gcc, string gccName, int calendarMonth)
+    public void Init(string gcc, string gccName, DateTime calendarMonth)
     {
         Gcc = gcc;
         GccName = gccName;
-
+      
         CreateCalendar(calendarMonth);
     }
 
@@ -59,8 +64,6 @@ public class Excel
     public void Statistics(List<string> ls)
     {
         Ws = Package.Workbook.Worksheets.Add("Statistics");
-
-
         string[] fields;
         int rowNr = 3;
         int colNr;
@@ -89,17 +92,21 @@ public class Excel
         FormatTable(Ws.Cells["A3:D3"]);
         Ws.Cells["A3:D7"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
         Ws.Cells["A1:D3"].EntireColumn.Width = 18;
+    }
 
+    private void FormatLink() {
+        var namedStyle = Package.Workbook.Styles.CreateNamedStyle("HyperLink");  
+        namedStyle.Style.Font.UnderLine = true;
+        namedStyle.Style.Font.Color.SetColor(System.Drawing.Color.Blue);
+        FormattedStyle = namedStyle;
     }
 
     public void Distribution(Dictionary<int, List<Score>> dist)
     {
         Ws = Package.Workbook.Worksheets.Add("Distribution");
         Package.Workbook.Worksheets.MoveToStart("Distribution");
-
+        FormatLink();
         string[] monthNames = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.MonthNames;
-
-
 
         int col = 1;
         string[] fields = { "Month", "GCC", "GCC Name", "Total score", "Headcount", "Docs", "LCC", "Pay group", "Country", "Events" };
@@ -110,13 +117,29 @@ public class Excel
         }
         int row = 4;
         int monthOffset = MigrationConfig.Month;
+
+        foreach(StaticGcc g in StaticGCCs.GetStatic()) {
+            Ws.Cells[row, 1].Value = monthNames[g.Month-1];
+            Ws.Cells[row, 2].Value = g.Gcc;
+            Ws.Cells[row, 3].Value = g.GccName;
+            Ws.Cells[row, 4].Value = "N/A (Manually added)";
+            row++;
+        }
+
+        int monthKey;
+
         foreach (var d in dist)
         {
-
             foreach (Score s in d.Value)
             {
-                Ws.Cells[row, 1].Value = monthNames[monthOffset + d.Key - 1];
+               
+                monthKey = monthOffset + d.Key - 1;
+                if (monthKey == 12) monthKey = 0;
+
+                Ws.Cells[row, 1].Value = monthNames[monthKey];
                 Ws.Cells[row, 2].Value = s.Gcc;
+                Ws.Cells[row, 2].Hyperlink = new Uri($"#'{s.Gcc}'!A1", UriKind.Relative);
+                Ws.Cells[row, 2].StyleName = "HyperLink";
                 Ws.Cells[row, 3].Value = s.GccName;
                 Ws.Cells[row, 4].Value = s.Total;
                 Ws.Cells[row, 5].Value = s.Headcount;
@@ -127,9 +150,8 @@ public class Excel
                 Ws.Cells[row, 10].Value = s.Eventcount;
                 row++;
             }
-
-
         }
+
         FormatTable(Ws.Cells["A3:J3"]);
         Ws.Cells["A1:J3"].EntireColumn.Width = 18;
         Ws.Cells["C1:C1"].EntireColumn.Width = 30;
@@ -152,19 +174,19 @@ public class Excel
 
     public void FillFile()
     {
-        if (MigrationConfig.OnlyGcc.Length > 0 && Gcc != MigrationConfig.OnlyGcc)
-        {
-            return;
+    
+
+        C.RemoveAll(x => x.Value.Length == 0);
+        Console.WriteLine($"{Gcc} has {C.Count}");
+        if (C.Count == 0) {
+            var cell = Ws.Cells["A10:A10"];
+            cell.Value = $"No payroll calendar found for {Gcc} for selected month";
+            cell.Style.Font.Bold = true;
+            cell.Style.Font.Size = 16;
+            cell.Style.Font.Color.SetColor(System.Drawing.Color.Red);
         }
 
-
-        c.RemoveAll(x => x.Value.Length == 0);
-
-        if (MigrationConfig.OnlyGcc.Length > 0 && Gcc == MigrationConfig.OnlyGcc)
-        {
-            Debug.Assert(c.Count > 0, $"2. No PG found met {c.Count}");
-        }
-        foreach (Coordinates c1 in c)
+        foreach (Coordinates c1 in C)
         {
             var w = Ws.Cells[c1.X, c1.Y];
             w.Style.Font.Bold = true;
@@ -172,18 +194,20 @@ public class Excel
             w.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
             w.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightYellow);
         }
-        Ws.Cells["A3:G7"].EntireColumn.Width = 18;
-        Ws.Cells["A3:G7"].EntireRow.Height = 60;
-        Ws.Cells["A3:G7"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+        Ws.Cells["A3:G"+CalRowCount].EntireColumn.Width = 18;
+        Ws.Cells["A3:G"+CalRowCount].EntireRow.Height = 60;
+        Ws.Cells["A3:G"+CalRowCount].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
 
-        Ws.Cells["A3:G7"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-        Ws.Cells["A3:G7"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-        Ws.Cells["A3:G7"].Style.WrapText = true;
-        c.Clear();
+        Ws.Cells["A3:G"+CalRowCount].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+        Ws.Cells["A3:G"+CalRowCount].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+        Ws.Cells["A3:G"+CalRowCount].Style.WrapText = true;
+        C.Clear();
     }
 
     public void Save()
     {
+        Ws = Package.Workbook.Worksheets["Distribution"];
+        Ws.View.SetTabSelected();
         Package.SaveAs("src/Data/Output/" + MigrationConfig.ExcelFilename);
 
         Console.WriteLine($"File written to {MigrationConfig.ExcelFilename} ");
@@ -204,29 +228,29 @@ public class Excel
         FormatTable(w);
         var monthname = dt.ToString("MMMM", new System.Globalization.CultureInfo("en-GB"));
 
-        Ws.Cells[1, 1].Value = $"Calendar for {monthname} for {Gcc} ({GccName})";
+        Ws.Cells[1, 1].Value = $"Calendar for {monthname} {dt.Year} for {Gcc} ({GccName})";
         Ws.Cells[1, 1].Style.Font.Size = 16;
         Ws.Cells["A2:G2"].Style.Font.Size = 16;
+        Ws.Cells["E1"].Value = "Back";
+        Ws.Cells["E1"].Hyperlink = new Uri($"#'Distribution'!A1", UriKind.Relative);
+        Ws.Cells["E1"].StyleName = "HyperLink";
 
     }
 
 
-    public void CreateCalendar(int month)
+    public void CreateCalendar(DateTime period)
     {
-        if (MigrationConfig.OnlyGcc.Length > 0 && Gcc != MigrationConfig.OnlyGcc)
-        {
-            return;
-        }
+       
 
-        var dt = DateTime.Now;
-        // int month = new DateTime(dt.Year, MigrationConfig.Month, 1).AddMonths(offset).Month;
-        DateTime firstDayOfMonth = new(dt.Year, month, 1);
+        DateTime dt;
+       // int month = new DateTime(dt.Year, MigrationConfig.Month, 1).AddMonths(offset).Month;
+        DateTime firstDayOfMonth = new(period.Year, period.Month, 1);
         Header(firstDayOfMonth);
 
         DateTime lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddSeconds(-1);
         int nr = lastDayOfMonth.Day;
         int col = 0;
-        c = new List<Coordinates>(nr);
+        C = new List<Coordinates>(nr);
 
         int row = 1;
         for (int i = 0; i < nr; i++)
@@ -242,11 +266,13 @@ public class Excel
 
             // Ws.Cells
             Ws.Cells[row + 2, col].Value = dt.Day;
-            c.Insert(i, new Coordinates { X = row + 2, Y = col });
+            C.Insert(i, new Coordinates { X = row + 2, Y = col });
             if (dt.DayOfWeek == DayOfWeek.Sunday)
             {
                 row++;
             }
         }
+        CalRowCount = row+=2;
+        Console.WriteLine($"GCC = {Gcc}, Cal row count {CalRowCount}");
     }
 }

@@ -22,12 +22,16 @@ public class Analyze
         Score sc = new();
         foreach (var gcc in Drl)
         {
-            if (MigrationConfig.OnlyGcc.Length > 0 && MigrationConfig.OnlyGcc != gcc.Gcc ) {
-                continue;
-            }
+            
             sc = new() { Gcc = gcc.Gcc, GccName = gcc.GccName };
             Scores.Add(sc);
         }
+    }
+
+       public List<Score> GetScores()
+    {
+        Scores.ForEach(x => x.Calculate());
+        return Scores.OrderByDescending(x => x.Total).ToList();
     }
 
     public int Report(List<DataElement> de)
@@ -189,11 +193,7 @@ public class Analyze
         }
     }
 
-    public List<Score> GetScores()
-    {
-        Scores.ForEach(x => x.Calculate());
-        return Scores.OrderByDescending(x => x.Total).ToList();
-    }
+ 
 
     public void EventCount(Operation op = Operation.Absolute)
     {

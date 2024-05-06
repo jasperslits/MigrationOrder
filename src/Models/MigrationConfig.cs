@@ -5,11 +5,10 @@ public class MigrationConfig
 
     public readonly static int Month = 8;
 
-    public readonly static int NrPeriods = 5;
-
+    public readonly static int NrPeriods = 6;
     public readonly static bool IncludeDistribution = true;
     public readonly static bool IncludeStats = true;
-    public readonly static bool IncludeGcc = true;
+
     public readonly static bool IncludeParams = true;
 
     public readonly static Enums.BucketFill DistributionOrder = Enums.BucketFill.Horizontal;
@@ -27,6 +26,7 @@ public class MigrationConfig
     public static Dictionary<string,int> Predefined() {
         Dictionary<string,int> Offsets = new()
         {
+             { "ATR", 1 },
             { "ING", 2 },
             { "RAB", 3 }
         };

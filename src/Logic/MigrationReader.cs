@@ -43,6 +43,11 @@ public class MigrationReader
 
         }
 
+        if (MigrationConfig.OnlyGcc.Length > 0 )
+        {
+            records.RemoveAll(x => x.Gcc != MigrationConfig.OnlyGcc);
+        }
+
         ReadPayPeriods();
         Debug.Assert(records.Count() != 0,$"List records is empty after reading {DatadumpFile}");
         foreach( var record in records) {

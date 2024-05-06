@@ -47,17 +47,23 @@ public class AnalyzePayperiod
     public List<PayPeriodGcc> FindData(string Gcc, int bucket) {
         List<PayPeriodGcc> ppg = new();
 
-        DateTime TargetPeriodStart = DateTime.Now.AddMonths(bucket);
-        TargetPeriodStart = new DateTime(TargetPeriodStart.Year, TargetPeriodStart.Month, 1);
+        DateTime TargetPeriodStart = new DateTime(2024,MigrationConfig.Month,1).AddMonths(bucket);
+        if (TargetPeriodStart.Month == 12) {
+            TargetPeriodStart.AddMonths(1);
+        }
+
+      //  TargetPeriodStart = new DateTime(TargetPeriodStart.Year, TargetPeriodStart.Month, 1);
         DateTime TargetPeriodEnd = TargetPeriodStart.AddMonths(1).AddSeconds(-1);
         List<PayPeriod> res = _lp.Where(x => x.Gcc == Gcc).Where(x => x.Open > TargetPeriodStart && x.Open < TargetPeriodEnd).OrderBy(x => x.Open).DistinctBy(x => x.PayGroup).ToList();
+        if (res.Count == 0) {
+            Console.WriteLine($"No data found for {Gcc} with {TargetPeriodStart.ToString("yyyy-MM-dd")}");
+        } else {
+            Console.WriteLine($"Found for {Gcc} with {TargetPeriodStart.ToString("yyyy-MM-dd")} with bucket {bucket}");
+        }
         foreach(PayPeriod f in res) {     
        
         var (dayone,daytwo) = Propose(f.Open,f.Close);
-        if (Gcc == "RKT" && f.PayGroup == "S0") {
-               
-            Console.WriteLine($"Open = {f.Open} ({dayone.DayOfWeek}). Day {dayone} ({dayone.DayOfWeek}), Day two {daytwo} ({daytwo.DayOfWeek}). Bucket {bucket}"); 
-        }
+ 
          var _ppg = new PayPeriodGcc {
                     Gcc = Gcc,
                     PayGroup = f.PayGroup,

@@ -29,10 +29,11 @@ public class MigHelper
         EC();
         PG();
       
-        if (MigrationConfig.IncludeParams) {
+        bool SingleGCC = MigrationConfig.OnlyGcc.Length > 0;
+        if (MigrationConfig.IncludeParams && ! SingleGCC) {
             E.Parameters(Parameters());
         }
-         if (MigrationConfig.IncludeStats) {
+         if (MigrationConfig.IncludeStats && ! SingleGCC) {
             E.Statistics(Statistics());
         }
          WriteOutput();
@@ -110,8 +111,6 @@ public class MigHelper
             ls2["EmployeeCount"][2] += result.Value.Where(x => x.Headcount == ComplexityType.High).Count();
         
         }
-        
-
 
         foreach (var x in ls2)
         {
@@ -122,37 +121,34 @@ public class MigHelper
 
     public void WriteOutput()
     {
-
         List<String> pg = new() { "GCC;Month offset;Pay group; Date one;Date two" };
         List<PayPeriodGcc> ppglist;
         PayPeriodGcc ppg;
+        DateTime dt;
 
         foreach (var result in DistResults)
         {
+
             foreach (var obj in result.Value)
             {
-                if (MigrationConfig.OnlyGcc.Length > 0 && obj.Gcc != MigrationConfig.OnlyGcc)
-                {
-                    continue;
-                }
-
-                
-              
-
+                if (obj is null) continue;
                 ppglist = Apr.FindData(obj.Gcc, result.Key);
                 if (ppglist.Count == 0)
                 {
                     Console.WriteLine($"No PG data found for {obj.Gcc}");
+                    dt = new DateTime(2024,MigrationConfig.Month,1).AddMonths(result.Key);
+                    E.Init(obj.Gcc, obj.GccName, dt);
+                    E.FillFile();
                     continue;
                 }
-                E.Init(obj.Gcc, obj.GccName, ppglist[0].Dayone.Month);
+                E.Init(obj.Gcc, obj.GccName, ppglist[0].Dayone);
 
                 if (ppglist.Count == 1)
                 {
                     ppg = ppglist.First();
                     pg.Add($"{ppg.Gcc};{result.Key + 1};{ppg.PayGroup};{ppg.Dayone.ToString("yyyy-MM-dd")};{ppg.Daytwo.ToString("yyyy-MM-dd")}");
 
-                    E.c.ElementAt(ppg.Dayone.Day - 1).Value += ppg.PayGroup + ",";
+                    E.C.ElementAt(ppg.Dayone.Day - 1).Value += ppg.PayGroup + ",";
 
                 }
                 else
@@ -163,13 +159,13 @@ public class MigHelper
 
                     foreach (var ppg2 in ppglist)
                     {
-                        E.c.ElementAt(ppg2.Dayone.Day - 1).Value += ppg2.PayGroup + ",";
-                        E.c.ElementAt(ppg2.Daytwo.Day - 1).Value += ppg2.PayGroup + ",";
+                        E.C.ElementAt(ppg2.Dayone.Day - 1).Value += ppg2.PayGroup + ",";
+                        E.C.ElementAt(ppg2.Daytwo.Day - 1).Value += ppg2.PayGroup + ",";
 
                     }
-                    E.FillFile();
+                    
                 }
-
+                E.FillFile();
             }
         }
 
