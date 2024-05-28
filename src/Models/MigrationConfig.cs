@@ -16,7 +16,7 @@ public class MigrationConfig
     public readonly static string ExcelFilename = "MigrationPlanning.xlsx";
 
     public readonly static string datadumpfile = "full_gcc.csv";
-    public readonly static string paygroupfile = "full_pg.csv";
+    public readonly static string paygroupfile = "merged_org.csv";
 
     public readonly static int LowerStat = 8;
     public readonly static int UpperStat = 50;

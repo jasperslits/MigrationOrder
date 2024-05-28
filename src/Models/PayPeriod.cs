@@ -12,7 +12,11 @@ public class PayPeriod
     public string PayGroup { get; set; }
     [Index(3)]
     public DateTime Open { get; set; }
-    [Index(3)]
+    [Index(4)]
     public DateTime Close { get; set; }
+    [Index(4)]
+    public DateTime CutOff { get; set; }
+    [Index(5)]
+    public DateTime PayDate { get; set; }
 
 }

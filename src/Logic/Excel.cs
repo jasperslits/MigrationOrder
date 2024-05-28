@@ -11,7 +11,7 @@ public class Excel
     private string Gcc;
 
     private string GccName;
-    public List<Coordinates> C { get; set; }
+    public List<PayPeriodGcc> C { get; set; }
     private ExcelWorksheet Ws { get; set; }
     private ExcelPackage Package { get; set; }
 
@@ -23,6 +23,7 @@ public class Excel
     {
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         Package = new();
+        C = new();
 
     }
 
@@ -176,7 +177,7 @@ public class Excel
     {
     
 
-        C.RemoveAll(x => x.Value.Length == 0);
+       // C.RemoveAll(x => x.Value.Length == 0);
         Console.WriteLine($"{Gcc} has {C.Count}");
         if (C.Count == 0) {
             var cell = Ws.Cells["A10:A10"];
@@ -186,13 +187,28 @@ public class Excel
             cell.Style.Font.Color.SetColor(System.Drawing.Color.Red);
         }
 
-        foreach (Coordinates c1 in C)
+        int row = 4;
+        int dayone = 1;
+        int daytwo = 2;
+        foreach (PayPeriodGcc c1 in C)
         {
-            var w = Ws.Cells[c1.X, c1.Y];
-            w.Style.Font.Bold = true;
-            w.Value = w.Value + "," + c1.Value.Remove(c1.Value.Length - 1, 1);
+            Ws.Cells[row, 1].Value = c1.PayGroup;
+            dayone = c1.Open.Day;
+            daytwo = c1.Close.Day;
+            if (dayone >= daytwo) {
+                Console.WriteLine($" PG = {c1.PayGroup}, from = {dayone} to {daytwo}");
+                daytwo = 31;
+            }
+            
+            
+            // [FromRow, FromCol, ToRow, ToCol]
+            var w = Ws.Cells[row, dayone+1,row,daytwo+1];
+           // w.Style.Font.Bold = true;
+            w.Value = "";
             w.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
             w.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightYellow);
+
+            row++;
         }
         Ws.Cells["A3:G"+CalRowCount].EntireColumn.Width = 18;
         Ws.Cells["A3:G"+CalRowCount].EntireRow.Height = 60;
@@ -240,7 +256,6 @@ public class Excel
 
     public void CreateCalendar(DateTime period)
     {
-       
 
         DateTime dt;
        // int month = new DateTime(dt.Year, MigrationConfig.Month, 1).AddMonths(offset).Month;
@@ -250,29 +265,19 @@ public class Excel
         DateTime lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddSeconds(-1);
         int nr = lastDayOfMonth.Day;
         int col = 0;
-        C = new List<Coordinates>(nr);
-
+    
         int row = 1;
-        for (int i = 0; i < nr; i++)
+        for (int i = 1; i <= nr; i++)
         {
             dt = firstDayOfMonth.AddDays(i);
-            if (dt.DayOfWeek == DayOfWeek.Monday) { col = 1; }
-            if (dt.DayOfWeek == DayOfWeek.Tuesday) { col = 2; }
-            if (dt.DayOfWeek == DayOfWeek.Wednesday) { col = 3; }
-            if (dt.DayOfWeek == DayOfWeek.Thursday) { col = 4; }
-            if (dt.DayOfWeek == DayOfWeek.Friday) { col = 5; }
-            if (dt.DayOfWeek == DayOfWeek.Saturday) { col = 6; }
-            if (dt.DayOfWeek == DayOfWeek.Sunday) { col = 7; }
-
-            // Ws.Cells
-            Ws.Cells[row + 2, col].Value = dt.Day;
-            C.Insert(i, new Coordinates { X = row + 2, Y = col });
-            if (dt.DayOfWeek == DayOfWeek.Sunday)
-            {
-                row++;
-            }
+            Ws.Cells[2,i].Value = dt.DayOfWeek;
+            Ws.Cells[3,i].Value = i;
+      //      C.Insert(i, new Coordinates { X = 2, Y = nr });
+          
         }
         CalRowCount = row+=2;
         Console.WriteLine($"GCC = {Gcc}, Cal row count {CalRowCount}");
-    }
+    } 
+
+  
 }

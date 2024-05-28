@@ -2,6 +2,7 @@
 
 using MigrationOrder.Logic;
 using MigrationOrder.Models;
+using MigrationOrder.Helpers;
 
 using Microsoft.Extensions.Configuration;
 using OfficeOpenXml;
@@ -11,8 +12,24 @@ class Program
 
     static void Main(string[] args)
     {
-       var mh = new MigHelper();
+      // var mh = new MigHelper();
+      var mh = new CSVMigHelper();
+      var pgdata = mh.ReadPg(MigrationConfig.paygroupfile);
+      var apr = new AnalyzePayperiod(pgdata);
+      string[] gccs = {"ARN","BAS","CIB","COR","EAS","ETN","HUF","IPI","JNJ","JSE","NCR","NVS","PFC","PRY","SAM","SFY","SRT","WEC"};
+      foreach(var gc in gccs) {
+        var x = apr.FindData(gc,1);
+        if (x.Count > 0) {
+        apr.Propose2(x);
+        } else {
+          Console.WriteLine($" No date found for {gc}");
+        }
+      }
+ 
       
+     foreach(var res in apr.GetProposedDates()) {
+        Console.WriteLine($"{res.Gcc},{res.DayOne},{res.DayTwo},{res.Score}");  
+     }
     }
       /*
       var configuration = new ConfigurationBuilder()

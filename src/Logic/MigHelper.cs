@@ -121,6 +121,11 @@ public class MigHelper
 
     public void WriteOutput()
     {
+
+    }
+
+    public void WriteOutput2()
+    {
         List<String> pg = new() { "GCC;Month offset;Pay group; Date one;Date two" };
         List<PayPeriodGcc> ppglist;
         PayPeriodGcc ppg;
@@ -141,27 +146,28 @@ public class MigHelper
                     E.FillFile();
                     continue;
                 }
-                E.Init(obj.Gcc, obj.GccName, ppglist[0].Dayone);
+                E.Init(obj.Gcc, obj.GccName, ppglist[0].Open);
 
                 if (ppglist.Count == 1)
                 {
                     ppg = ppglist.First();
-                    pg.Add($"{ppg.Gcc};{result.Key + 1};{ppg.PayGroup};{ppg.Dayone.ToString("yyyy-MM-dd")};{ppg.Daytwo.ToString("yyyy-MM-dd")}");
+         //           pg.Add($"{ppg.Gcc};{result.Key + 1};{ppg.PayGroup};{ppg.Dayone.ToString("yyyy-MM-dd")};{ppg.Daytwo.ToString("yyyy-MM-dd")}");
 
-                    E.C.ElementAt(ppg.Dayone.Day - 1).Value += ppg.PayGroup + ",";
+                //    E.C.ElementAt(ppg.Dayone.Day - 1).Value += ppg.PayGroup + ",";
+                    E.C.Add(ppg);
 
                 }
                 else
                 {
                     // Multiple pay periods
                     ppg = Apr.FindBest(ppglist);
-                    pg.Add($"{ppg.Gcc};{result.Key + 1};{ppg.PayGroup};{ppg.Dayone.ToString("yyyy-MM-dd")};{ppg.Daytwo.ToString("yyyy-MM-dd")}");
+                //    pg.Add($"{ppg.Gcc};{result.Key + 1};{ppg.PayGroup};{ppg.Dayone.ToString("yyyy-MM-dd")};{ppg.Daytwo.ToString("yyyy-MM-dd")}");
 
                     foreach (var ppg2 in ppglist)
                     {
-                        E.C.ElementAt(ppg2.Dayone.Day - 1).Value += ppg2.PayGroup + ",";
-                        E.C.ElementAt(ppg2.Daytwo.Day - 1).Value += ppg2.PayGroup + ",";
-
+                    //    E.C.ElementAt(ppg2.Dayone.Day - 1).Value += ppg2.PayGroup + ",";
+                    //    E.C.ElementAt(ppg2.Daytwo.Day - 1).Value += ppg2.PayGroup + ",";
+                             E.C.Add(ppg2);
                     }
                     
                 }
