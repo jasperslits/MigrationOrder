@@ -69,6 +69,7 @@ public class AnalyzePayperiod
             var day = i.Open.Day;
             bool FoundSlot = false;
             for(int j = day;j<=TargetPeriodEnd.Day;j++) {
+                Console.WriteLine($"Day = {j} for PG = {i.PayGroup}");
                 if (cal[j] != -1) {
                     cal[j] += 4;
             //        Console.WriteLine($"Found slot = {day} for PG = {i.PayGroup}");
@@ -81,6 +82,10 @@ public class AnalyzePayperiod
             }
         }
 
+        foreach(var x in cal) {
+            Console.WriteLine($"{x.Key} met {x.Value}");
+        }
+
         var r = cal.Where(x => x.Value > 0).OrderByDescending(x => x.Value).Take(2);
         foreach(var i in r) {
          
@@ -90,11 +95,7 @@ public class AnalyzePayperiod
             pd.Add(new ProposedDates{Gcc = Gcc, DayOne = Dayone, DayTwo = Daytwo, Score = i.Value  });
             CheckDate(pglist,Dayone);
         }
-      
-  
     }
-
-
 
     public List<PayPeriodGcc> FindData(string Gcc, int bucket) {
         List<PayPeriodGcc> ppg = new();

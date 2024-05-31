@@ -16,7 +16,8 @@ class Program
       var mh = new CSVMigHelper();
       var pgdata = mh.ReadPg(MigrationConfig.paygroupfile);
       var apr = new AnalyzePayperiod(pgdata);
-      string[] gccs = {"ARN","BAS","CIB","COR","EAS","ETN","HUF","IPI","JNJ","JSE","NCR","NVS","PFC","PRY","SAM","SFY","SRT","WEC"};
+    //  string[] gccs = {"ARN","BAS","CIB","COR","EAS","ETN","HUF","IPI","JNJ","JSE","NCR","NVS","PFC","PRY","SAM","SFY","SRT","WEC"};
+      string[] gccs = {"MPG"};
       foreach(var gc in gccs) {
         var x = apr.FindData(gc,1);
         if (x.Count > 0) {
