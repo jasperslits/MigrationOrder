@@ -3,9 +3,7 @@
 using MigrationOrder.Logic;
 using MigrationOrder.Models;
 using MigrationOrder.Helpers;
-
-using Microsoft.Extensions.Configuration;
-using OfficeOpenXml;
+using MigrationOrder.Enums;
 
 class Program
 {
@@ -16,83 +14,27 @@ class Program
       var mh = new CSVMigHelper();
       var pgdata = mh.ReadPg(MigrationConfig.paygroupfile);
       var apr = new AnalyzePayperiod(pgdata);
-    //  string[] gccs = {"ARN","BAS","CIB","COR","EAS","ETN","HUF","IPI","JNJ","JSE","NCR","NVS","PFC","PRY","SAM","SFY","SRT","WEC"};
-      string[] gccs = {"MPG"};
-      foreach(var gc in gccs) {
-        var x = apr.FindData(gc,1);
+      var pr = new PLanningReader();
+      List<Planning> p = pr.GetPlanning();
+    // p.Clear();
+    //  p.Add(new Planning {Gcc = "ALC",Month = 0});
+      foreach(var planning in p) {
+  
+        var x = apr.FindData(planning.Gcc,planning.Month);
         if (x.Count > 0) {
         apr.Propose2(x);
         } else {
-          Console.WriteLine($" No date found for {gc}");
+          Console.WriteLine($" No date found for {planning.Gcc}");
         }
       }
  
-      
+      Console.WriteLine("======");
+      List<string> ls = new();
      foreach(var res in apr.GetProposedDates()) {
-        Console.WriteLine($"{res.Gcc},{res.DayOne},{res.DayTwo},{res.Score}");  
+      ls.Add($"{res.Usedstrategy},{res.Gcc},{res.DayOne},{res.DayOne.DayOfWeek},{res.ScoreDayOne},{res.ScoreDayOnePercent}%,{res.DayTwo},{res.ScoreDayTwo},{res.ScoreDayTwoPercent}%");  
      }
-    }
-      /*
-      var configuration = new ConfigurationBuilder()
-    .AddInMemoryCollection(new Dictionary<string, string?>()
-    {
-        ["SomeKey"] = "SomeValue"
-    })
-    .Build();
-    configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-  
-      
-  /*
-  List<Score> scores= new List<Score>();
-  Score a = new Score {
-    Gcc = "KPN",
-    Total = 88
-  };
-  scores.Add(a);
-     a = new Score {
-    Gcc = "RAB",
-    Total = 60
-  };
-  scores.Add(a);
-  a = new Score {
-    Gcc = "SIE",
-    Total = 75
-  };
-    scores.Add(a);
-   a = new Score {
-    Gcc = "SAM",
-    Total = 70
-  };
-    scores.Add(a);
-   a = new Score {
-    Gcc = "JET",
-    Total = 55
-  };
-    scores.Add(a);   
-    a = new Score {
-    Gcc = "JUM",
-    Total = 50
-  };
-   scores.Add(a);   
-    a = new Score {
-    Gcc = "MRT",
-    Total = 40
-  };
-   scores.Add(a);   
-    a = new Score {
-    Gcc = "SOL",
-    Total = 40
-  };
-    scores.Add(a);
-    scores = scores.OrderByDescending(x => x.Total).ToList();
-  var d = new Distribute(3,scores,false);
-  */
+     File.WriteAllLines("src/Data/Output/nw.csv", ls); 
 
-
-     //   h.ToScreen();
-  //      h.ToCSV("src/Data/output/results.csv");
-     //   h.Parameters("src/Data/output/parameters.csv");
-    // h.Statistics("some");
     }
-//}
+} 
 

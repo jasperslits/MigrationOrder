@@ -1,3 +1,5 @@
+using MigrationOrder.Enums;
+
 namespace MigrationOrder.Models;
 
 public class PayPeriodGcc {
@@ -18,6 +20,14 @@ public class ProposedDates {
     public DateTime DayOne {get;set;}
     public DateTime DayTwo {get;set;}
 
-    public int Score {get; set;}
+    public int ScoreDayOne {get; set;}
+
+    public int ScoreDayTwo {get; set;}
+
+    public double ScoreDayOnePercent {get; set;}
+
+    public double ScoreDayTwoPercent {get; set;}
+
+    public Strategy Usedstrategy{ get; set; }
 
 }

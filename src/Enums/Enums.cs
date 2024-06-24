@@ -11,6 +11,21 @@ public enum BucketFill {
     Vertical,
 }
 
+public enum Strategy {
+    FirstDayOpen,
+    FirstDayClosed,
+    FirstCalDay
+
+}
+
+public enum Month : ushort{
+    September = 1,
+    October = 2,
+    November = 3,
+    December = 4,
+    January = 5
+}
+
 public enum DataTypes {
     Lcc,
     Paygroup,

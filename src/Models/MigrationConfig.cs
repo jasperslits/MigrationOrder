@@ -11,6 +11,8 @@ public class MigrationConfig
 
     public readonly static bool IncludeParams = true;
 
+    public readonly static bool UseOpenAsStart = true;
+
     public readonly static Enums.BucketFill DistributionOrder = Enums.BucketFill.Horizontal;
 
     public readonly static string ExcelFilename = "MigrationPlanning.xlsx";
